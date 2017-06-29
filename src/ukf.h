@@ -73,6 +73,10 @@ public:
   double lambda_;
 
 
+  // NIS
+  double NIS_LASER_;
+  double NIS_RADAR_;
+
   /**
    * Constructor
    */

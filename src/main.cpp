@@ -38,7 +38,13 @@ int main()
   vector<VectorXd> estimations;
   vector<VectorXd> ground_truth;
 
-  h.onMessage([&ukf_,&tools,&estimations,&ground_truth](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
+  ofstream out_file_laser_;
+  ofstream out_file_radar_;
+  out_file_laser_.open("nis_laser_output.txt", ofstream::out);
+  out_file_radar_.open("nis_rader_output.txt", ofstream::out);
+
+
+  h.onMessage([&ukf_,&tools,&estimations,&ground_truth, &out_file_laser_, &out_file_radar_](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -126,6 +132,21 @@ int main()
 
     	  VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
 
+      // output the NIS values
+      out_file_laser_ << ukf_.NIS_LASER_ << "\n";
+      out_file_radar_ << ukf_.NIS_RADAR_ << "\n";
+      
+      /*
+      if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+        out_file_laser_ << ukf_.NIS_LASER_ ;
+        //cout << "laser: " << ukf_.NIS_LASER_ << endl;
+      }
+      else if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
+        //cout << "radar" << endl;
+        out_file_radar_ << ukf_.NIS_RADAR_ ;
+      }*/
+
+
           json msgJson;
           msgJson["estimate_x"] = p_x;
           msgJson["estimate_y"] = p_y;
@@ -136,7 +157,7 @@ int main()
           auto msg = "42[\"estimate_marker\"," + msgJson.dump() + "]";
           //std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
-		  cout << "Message sent......" << endl;
+		  
         }
       } else {
         
@@ -166,7 +187,10 @@ int main()
     std::cout << "Connected!!!" << std::endl;
   });
 
-  h.onDisconnection([&h](uWS::WebSocket<uWS::SERVER> ws, int code, char *message, size_t length) {
+  h.onDisconnection([&h, &out_file_laser_, &out_file_radar_](uWS::WebSocket<uWS::SERVER> ws, int code, char *message, size_t length) {
+    out_file_laser_.close();
+    out_file_radar_.close();
+
     ws.close();
     std::cout << "Disconnected" << std::endl;
   });
