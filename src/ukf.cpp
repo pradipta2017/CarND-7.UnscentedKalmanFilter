@@ -88,6 +88,9 @@ UKF::UKF() {
   ///* predicted sigma points matrix
   Xsig_pred_ = MatrixXd(n_x_,2*n_aug_+1);
 
+  NIS_LASER_ = 0.0;
+  NIS_RADAR_ = 0.0;
+
 }
 
 UKF::~UKF() {}
@@ -343,7 +346,10 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
 	x_ = x_ + (K * y);
 	MatrixXd I = MatrixXd::Identity(n_x_, n_x_);
 	P_ = (I - K * H_) * P_;
+	// NIS calculation
 
+	NIS_LASER_ = y.transpose() * Si * y;
+	NIS_RADAR_ = -1.0;
 }
 
 /**
@@ -469,4 +475,9 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
   P_ = P_ - K*S*K.transpose();
 
   /* UKF update end */
+
+  // NIS calculation
+
+  NIS_RADAR_ = z_diff.transpose() * S.inverse() * z_diff;
+  NIS_LASER_ = -1.0;  
 }
