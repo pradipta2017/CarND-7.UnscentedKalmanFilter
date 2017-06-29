@@ -126,15 +126,14 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 			const float m2 = meas_package.raw_measurements_[0] * sin(meas_package.raw_measurements_[1]);
 			const double vx = meas_package.raw_measurements_[2] * cos(meas_package.raw_measurements_[1]);
 			const double vy = meas_package.raw_measurements_[2] * sin(meas_package.raw_measurements_[1]);
-			cout << vx << ":" << vy << endl;
-			x_ << m1, m2, .001, .01, 1;
+			x_ << m1, m2, .vx, .vy, 1;
 			
 		}
 		else if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
 			/**
 			Initialize state.
 			*/
-			x_ << meas_package.raw_measurements_[0], meas_package.raw_measurements_[1], .001, .01 , 1;
+			x_ << meas_package.raw_measurements_[0], meas_package.raw_measurements_[1], 1, 1 , 1;
 			//x_ << .05, .05, .05, .05, 0.05;
 		}
 
