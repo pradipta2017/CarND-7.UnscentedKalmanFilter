@@ -120,8 +120,11 @@ int main()
 
     	  double p_x = ukf_.x_(0);
     	  double p_y = ukf_.x_(1);
-    	  double v1  = ukf_.x_(2);
-    	  double v2 = ukf_.x_(3);
+    	  double v  = ukf_.x_(2);
+    	  double yaw = ukf_.x_(3);
+
+		  double v1 = cos(yaw)*v;
+		  double v2 = sin(yaw)*v;
 
     	  estimate(0) = p_x;
     	  estimate(1) = p_y;
@@ -131,21 +134,12 @@ int main()
     	  estimations.push_back(estimate);
 
     	  VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
+		  
 
       // output the NIS values
-      out_file_laser_ << ukf_.NIS_LASER_ << "\n";
-      out_file_radar_ << ukf_.NIS_RADAR_ << "\n";
+		 out_file_laser_ << ukf_.NIS_LASER_ << "\n";
+         out_file_radar_ << ukf_.NIS_RADAR_ << "\n";
       
-      /*
-      if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
-        out_file_laser_ << ukf_.NIS_LASER_ ;
-        //cout << "laser: " << ukf_.NIS_LASER_ << endl;
-      }
-      else if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
-        //cout << "radar" << endl;
-        out_file_radar_ << ukf_.NIS_RADAR_ ;
-      }*/
-
 
           json msgJson;
           msgJson["estimate_x"] = p_x;
